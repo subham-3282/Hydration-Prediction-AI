@@ -32,8 +32,20 @@ st.markdown("""
     font-family: 'Inter', sans-serif;
 }
 
-/* Glassmorphism Cards for containers */
-div[data-testid="stForm"], div[data-testid="stVerticalBlock"] > div > div {
+/* Hide Streamlit empty containers that wrap style/markdown injections */
+[data-testid="stMarkdownContainer"]:empty,
+[data-testid="stMarkdownContainer"]:has(style) {
+    display: none !important;
+}
+div[data-testid="stVerticalBlock"] > div:has(style),
+div[data-testid="stVerticalBlock"] > div:empty {
+    display: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+div[data-testid="stForm"], 
+div[data-testid="stVerticalBlock"] > div > div:not(:has(.marquee-container)):not(:empty) {
     background: rgba(255, 255, 255, 0.05) !important;
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
@@ -124,6 +136,33 @@ progress::-webkit-progress-value {
     background: linear-gradient(90deg, #00C9FF 0%, #92FE9D 100%);
     border-radius: 7px;
 }
+
+/* Marquee Animation */
+.marquee-container {
+    width: 100%;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 10px 0;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.marquee-text {
+    display: inline-block;
+    white-space: nowrap;
+    animation: marquee 15s linear infinite;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #00f2fe;
+    text-shadow: 0 0 5px rgba(0, 242, 254, 0.8);
+}
+
+@keyframes marquee {
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(-100%); }
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -144,12 +183,14 @@ except Exception as e:
     st.stop()
 
 # ======= HERO SECTION =======
+st.markdown("<div class='marquee-container'><div class='marquee-text'>🚀 Stay Hydrated 🌊 Stay Healthy 🌟</div></div>", unsafe_allow_html=True)
 st.markdown("<h1 class='title-glow'>Hydration Quest 💦</h1>", unsafe_allow_html=True)
 st.markdown("<div style='text-align: center; margin-bottom: 1rem;'><span class='story-emoji'></span></div>", unsafe_allow_html=True)
 st.markdown("<p style='text-align: center; font-size: 1.1rem; color: #ddd;'>Level up your health by tracking your hydration. Enter your stats and discover your Hydration Hero Status!</p>", unsafe_allow_html=True)
 
+
 # ======= PLAYER INPUT PANEL =======
-st.markdown("### 🎮 Player Control Panel")
+st.markdown("### 🎮 Input Details")
 
 with st.form("input_form", clear_on_submit=False):
     col1, col2 = st.columns(2)
@@ -211,20 +252,26 @@ if submitted:
     if prediction == 0:  # GOOD Hydration
         st.balloons()
         with res_col1:
-            st.success("✅ **STATUS: Hydrated Hero**")
-            st.markdown("Your hydration levels are optimal! Keep the streak going.")
-            # Mock XP Bar
-            st.markdown("**Hydration XP: 100/100**")
-            st.markdown("<progress value='100' max='100'></progress>", unsafe_allow_html=True)
+            html_content = """
+            <div style='padding:1rem; border-radius:10px; background:rgba(0,255,100,0.1); border: 2px solid #00cc66; box-shadow: 0 4px 15px rgba(0,204,102,0.3);'>
+                <h3 style='color:#00ff88; margin-top:0;'>✅ STATUS: Hydrated Hero</h3>
+                <p>Your hydration levels are optimal! Keep the streak going.</p>
+                <p><strong>Hydration XP: 100/100</strong></p>
+                <progress value='100' max='100'></progress>
+            </div>
+            """
+            st.markdown(html_content, unsafe_allow_html=True)
     else:  # POOR Hydration
         with res_col1:
-            st.markdown("<div class='pulse-card' style='padding:1rem; border-radius:10px; background:rgba(255,75,75,0.1);'>", unsafe_allow_html=True)
-            st.error("⚠️ **STATUS: Needs Water!**")
-            st.markdown("Warning: Hydration critically low. Energy depleted. Please drink water immediately!")
-            # Mock XP Bar
-            st.markdown("**Hydration XP: 35/100**")
-            st.markdown("<progress value='35' max='100' style='accent-color: red;'></progress>", unsafe_allow_html=True)
-            st.markdown("</div>", unsafe_allow_html=True)
+            html_content = """
+            <div class='pulse-card' style='padding:1rem; border-radius:10px; background:rgba(255,75,75,0.1);'>
+                <h3 style='color:#ff4b4b; margin-top:0;'>⚠️ STATUS: Needs Water!</h3>
+                <p>Warning: Hydration critically low. Energy depleted. Please drink water immediately!</p>
+                <p><strong>Hydration XP: 35/100</strong></p>
+                <progress value='35' max='100' style='accent-color: red;'></progress>
+            </div>
+            """
+            st.markdown(html_content, unsafe_allow_html=True)
 
     # ======= ANALYTICS & VISUALIZATIONS =======
     with res_col2:
