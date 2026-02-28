@@ -505,7 +505,12 @@ if submitted:
         else:
             pdf.multi_cell(0, 10, txt="You are currently running a hydration deficit. Increase fluid intake to optimize bodily functions and energy levels.")
             
-        return bytes(pdf.output())
+        try:
+            out = pdf.output(dest='S')
+            return out.encode('latin-1') if isinstance(out, str) else bytes(out)
+        except Exception:
+            out = pdf.output()
+            return out.encode('latin-1') if isinstance(out, str) else bytes(out)
 
     try:
         pdf_bytes = create_pdf(prediction, confidence, len(st.session_state.history))
